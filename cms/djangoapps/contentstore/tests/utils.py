@@ -231,6 +231,7 @@ class CourseTestCase(ModuleStoreTestCase):
 
         # verify that we have the draft html
         draft_html = self.store.get_item(course_id.make_usage_key('html', self.DRAFT_HTML))
+        self.assertTrue(getattr(draft_html, 'is_draft', False))
 
         # verify verticals are children of sequential
         for vert in [vertical, private_vertical, public_vertical]:
