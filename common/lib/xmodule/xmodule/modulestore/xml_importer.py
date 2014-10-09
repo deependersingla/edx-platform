@@ -438,8 +438,8 @@ def _import_module_and_update_references(
                 value = field.read_from(module)
                 # remove any export/import only xml_attributes
                 # which are used to wire together draft imports
-                if 'parent_sequential_url' in value:
-                    del value['parent_sequential_url']
+                if 'parent_url' in value:
+                    del value['parent_url']
 
                 if 'index_in_children_list' in value:
                     del value['index_in_children_list']
@@ -505,9 +505,9 @@ def _import_course_draft(
         # in the list of children since they would have been
         # filtered out from the non-draft store export.
         # Note though that verticals nested below the unit level will not have
-        # a parent_sequential_url and do not need special handling.
-        if module.location.category == 'vertical' and 'parent_sequential_url' in module.xml_attributes:
-            sequential_url = module.xml_attributes['parent_sequential_url']
+        # a parent_url and do not need special handling.
+        if module.location.category == 'vertical' and 'parent_url' in module.xml_attributes:
+            sequential_url = module.xml_attributes['parent_url']
             index = int(module.xml_attributes['index_in_children_list'])
 
             course_key = descriptor.location.course_key
