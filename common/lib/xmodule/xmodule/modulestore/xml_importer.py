@@ -511,10 +511,8 @@ def _import_course_draft(
         # Note though that verticals nested below the unit level will not have
         # a parent_url and do not need special handling.
         if module_has_parent_pointer(module):
-            parent_url = module.xml_attributes.get(
-                'parent_url', descriptor.xml_attributes.get('parent_sequential_url')
-            )
-            index = int(module.xml_attributes['index_in_children_list'])
+            parent_url = get_parent_url(module)
+            index = index_in_children_list(module)
 
             course_key = descriptor.location.course_key
             parent_location = course_key.make_usage_key_from_deprecated_string(parent_url)
@@ -599,10 +597,8 @@ def _import_course_draft(
                         filename, __ = os.path.splitext(filename)
                         descriptor.location = descriptor.location.replace(name=filename)
 
-                        index = int(descriptor.xml_attributes['index_in_children_list'])
-                        parent_url = descriptor.xml_attributes.get(
-                            'parent_url', descriptor.xml_attributes.get('parent_sequential_url')
-                        )
+                        index = index_in_children_list(descriptor)
+                        parent_url = get_parent_url(descriptor, xml)
                         draft_url = descriptor.location.to_deprecated_string()
 
                         draft = module_node_contructor(
@@ -658,6 +654,54 @@ def check_module_metadata_editability(module):
         )
 
     return err_cnt
+
+
+def get_parent_url(module, xml=None):
+    """
+    Get the parent_url, if any, from module using xml as an alternative source. If it finds it in
+    xml but not on module, it modifies module so that the next call to this w/o the xml will get the parent url
+    """
+    if hasattr(module, 'xml_attributes'):
+        return module.xml_attributes.get(
+            # handle deprecated old attr
+            'parent_url', module.xml_attributes.get('parent_sequential_url')
+        )
+    if xml is not None:
+        create_xml_attributes(module, xml)
+        return get_parent_url(module)  # don't reparse xml b/c don't infinite recurse but retry above lines
+    else:
+        return None
+
+
+def index_in_children_list(module, xml=None):
+    """
+    Get the index_in_children_list, if any, from module using xml as an alternative source. If it finds it in
+    xml but not on module, it modifies module so that the next call to this w/o the xml will get the field
+    """
+    if hasattr(module, 'xml_attributes'):
+        val = module.xml_attributes.get('index_in_children_list')
+        return int(val)
+    if xml is not None:
+        create_xml_attributes(module, xml)
+        return index_in_children_list(module)  # don't reparse xml b/c don't infinite recurse but retry above lines
+    else:
+        return None
+
+
+def create_xml_attributes(module, xml):
+    """
+    Make up for modules which don't define xml_attributes by creating them here and populating
+    """
+    xml_attrs = {}
+    for attr, val in xml.attrib.iteritems():
+        if attr not in module.fields:
+            # translate obsolete attr
+            if attr == 'parent_sequential_url':
+                attr = 'parent_url'
+            xml_attrs[attr] = val
+
+    # now cache it on module where it's expected
+    setattr(module, 'xml_attributes', xml_attrs)
 
 
 def module_has_parent_pointer(module):
