@@ -39,7 +39,7 @@ from .store_utilities import rewrite_nonportable_content_links
 import xblock
 from xmodule.tabs import CourseTabList
 from xmodule.modulestore.django import ASSET_IGNORE_REGEX
-from xmodule.modulestore.exceptions import DuplicateCourseError, ItemNotFoundError
+from xmodule.modulestore.exceptions import DuplicateCourseError
 from xmodule.modulestore.mongo.base import MongoRevisionKey
 from xmodule.modulestore import ModuleStoreEnum
 from xmodule.modulestore.draft_and_published import DIRECT_ONLY_CATEGORIES
@@ -442,6 +442,8 @@ def _import_module_and_update_references(
                 # which are used to wire together draft imports
                 if 'parent_url' in value:
                     del value['parent_url']
+                if 'parent_sequential_url' in value:
+                    del value['parent_sequential_url']
 
                 if 'index_in_children_list' in value:
                     del value['index_in_children_list']
@@ -508,8 +510,10 @@ def _import_course_draft(
         # filtered out from the non-draft store export.
         # Note though that verticals nested below the unit level will not have
         # a parent_url and do not need special handling.
-        if module.location.category not in DIRECT_ONLY_CATEGORIES and 'parent_url' in module.xml_attributes:
-            parent_url = module.xml_attributes['parent_url']
+        if module_has_parent_pointer(module):
+            parent_url = module.xml_attributes.get(
+                'parent_url', descriptor.xml_attributes.get('parent_sequential_url')
+            )
             index = int(module.xml_attributes['index_in_children_list'])
 
             course_key = descriptor.location.course_key
@@ -596,7 +600,9 @@ def _import_course_draft(
                         descriptor.location = descriptor.location.replace(name=filename)
 
                         index = int(descriptor.xml_attributes['index_in_children_list'])
-                        parent_url = descriptor.xml_attributes['parent_url']
+                        parent_url = descriptor.xml_attributes.get(
+                            'parent_url', descriptor.xml_attributes.get('parent_sequential_url')
+                        )
                         draft_url = descriptor.location.to_deprecated_string()
 
                         draft = module_node_contructor(
@@ -652,6 +658,17 @@ def check_module_metadata_editability(module):
         )
 
     return err_cnt
+
+
+def module_has_parent_pointer(module):
+    """
+    Does the module have a parent pointer
+    """
+    if module.location.block_type in DIRECT_ONLY_CATEGORIES:
+        return False
+    if hasattr(module, 'xml_attributes'):
+        return 'parent_url' in module.xml_attributes or 'parent_sequential_url' in module.xml_attributes
+    return False
 
 
 def validate_no_non_editable_metadata(module_store, course_id, category):
