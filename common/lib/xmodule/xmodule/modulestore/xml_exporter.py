@@ -9,13 +9,13 @@ from xmodule.contentstore.content import StaticContent
 from xmodule.exceptions import NotFoundError
 from xmodule.modulestore import EdxJSONEncoder, ModuleStoreEnum
 from xmodule.modulestore.inheritance import own_metadata
+from xmodule.modulestore.store_utilities import module_node_contructor, get_subtree_roots
 from fs.osfs import OSFS
 from json import dumps
 import json
 import os
 from path import path
 import shutil
-from collections import namedtuple
 from xmodule.modulestore.draft_and_published import DIRECT_ONLY_CATEGORIES
 from opaque_keys.edx.locator import CourseLocator
 
@@ -124,8 +124,7 @@ def export_to_xml(modulestore, contentstore, course_key, root_dir, course_dir):
 
                     # accumulate tuples of draft_modules and their parents in
                     # this list:
-                    draft_parent_list = []
-                    DraftNode = namedtuple('DraftNode', ['module', 'loc', 'parent_loc'])
+                    draft_node_list = []
 
                     for draft_module in draft_modules:
                         parent_loc = modulestore.get_parent_location(
@@ -135,35 +134,31 @@ def export_to_xml(modulestore, contentstore, course_key, root_dir, course_dir):
                         # Don't try to export orphaned items.
                         if parent_loc is not None:
                             logging.debug('parent_loc = {0}'.format(parent_loc))
-                            draft_node = DraftNode(draft_module, draft_module.location, parent_loc)
-                            draft_parent_list.append(draft_node)
+                            draft_node = module_node_contructor(
+                                draft_module,
+                                location=draft_module.location,
+                                url=draft_module.location.to_deprecated_string(),
+                                parent_location=parent_loc,
+                                parent_url=parent_loc.to_deprecated_string(),
+                            )
 
-                    for draft_module, _, parent_loc in get_draft_roots(draft_parent_list):
+                            draft_node_list.append(draft_node)
+
+                    for draft_node in get_subtree_roots(draft_node_list, use_locations=True):
                         # only export the roots of the draft subtrees
                         # since export_from_xml (called by `add_xml_to_node`)
                         # exports a whole tree
 
-                        draft_module.xml_attributes['parent_url'] = parent_loc.to_deprecated_string()
-                        parent = modulestore.get_item(parent_loc)
-                        index = parent.children.index(draft_module.location)
-                        draft_module.xml_attributes['index_in_children_list'] = str(index)
+                        draft_node.module.xml_attributes['parent_url'] = draft_node.parent_url
+                        parent = modulestore.get_item(draft_node.parent_location)
+                        index = parent.children.index(draft_node.module.location)
+                        draft_node.module.xml_attributes['index_in_children_list'] = str(index)
 
-                        draft_module.runtime.export_fs = draft_course_dir
-                        adapt_references(draft_module, xml_centric_course_key, draft_course_dir)
+                        draft_node.module.runtime.export_fs = draft_course_dir
+                        adapt_references(draft_node.module, xml_centric_course_key, draft_course_dir)
                         node = lxml.etree.Element('unknown')
 
-                        draft_module.add_xml_to_node(node)
-
-
-def get_draft_roots(draft_parent_list):
-    """
-    Takes a list of DraftNodes, and returns a list of nodes
-    whose parents are not in the list, i.e. the roots of draft subtrees
-    """
-    _, draft_locs, _ = zip(*draft_parent_list)
-    for draft_node in draft_parent_list:
-        if draft_node.parent_loc.category in DIRECT_ONLY_CATEGORIES or draft_node.parent_loc not in draft_locs:
-            yield draft_node
+                        draft_node.module.add_xml_to_node(node)
 
 
 def adapt_references(subtree, destination_course_key, export_fs):

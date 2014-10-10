@@ -26,7 +26,6 @@ import mimetypes
 from path import path
 import json
 import re
-from collections import namedtuple
 
 from .xml import XMLModuleStore, ImportSystem, ParentTracker
 from xblock.runtime import KvsFieldData, DictKeyValueStore
@@ -44,6 +43,8 @@ from xmodule.modulestore.exceptions import DuplicateCourseError, ItemNotFoundErr
 from xmodule.modulestore.mongo.base import MongoRevisionKey
 from xmodule.modulestore import ModuleStoreEnum
 from xmodule.modulestore.draft_and_published import DIRECT_ONLY_CATEGORIES
+from xmodule.modulestore.store_utilities import module_node_contructor, get_subtree_roots
+
 
 log = logging.getLogger(__name__)
 
@@ -539,7 +540,6 @@ def _import_course_draft(
     # First it is necessary to order the draft items by their desired index in the child list
     # (order os.walk returns them in is not guaranteed).
     drafts = []
-    DraftNode = namedtuple('DraftNode', ['index', 'descriptor', 'draft_url', 'parent_url'])
     for dirname, _dirnames, filenames in os.walk(draft_dir):
         for filename in filenames:
             module_path = os.path.join(dirname, filename)
@@ -598,30 +598,24 @@ def _import_course_draft(
                         index = int(descriptor.xml_attributes['index_in_children_list'])
                         parent_url = descriptor.xml_attributes['parent_url']
                         draft_url = descriptor.location.to_deprecated_string()
-                        draft = DraftNode(index, descriptor, draft_url, parent_url)
+
+                        draft = module_node_contructor(
+                            module=descriptor, url=draft_url, parent_url=parent_url, index=index
+                        )
 
                         drafts.append(draft)
 
-                except Exception:
+                except Exception:  # pylint: disable=W0703
                     logging.exception('Error while parsing course xml.')
 
     # sort drafts
     drafts.sort(key=lambda x: x.index)
 
-    for draft in get_draft_roots(drafts):
+    for draft in get_subtree_roots(drafts):
         try:
-            _import_module(draft.descriptor)
-        except Exception:
-            logging.exception('while importing draft descriptor %s', draft.descriptor)
-
-
-def get_draft_roots(drafts):
-    # Takes a list of DraftNode named tuples and yields those that are roots
-    # of draft subtrees
-    _, _, draft_urls, _ = zip(*drafts)
-    for draft in drafts:
-        if draft.parent_url not in draft_urls:
-            yield draft
+            _import_module(draft.module)
+        except Exception:  # pylint: disable=W0703
+            logging.exception('while importing draft descriptor %s', draft.module)
 
 
 def allowed_metadata_by_category(category):

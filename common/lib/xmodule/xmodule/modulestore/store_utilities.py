@@ -1,5 +1,7 @@
 import re
 import logging
+from collections import namedtuple
+from xmodule.modulestore.draft_and_published import DIRECT_ONLY_CATEGORIES
 
 import uuid
 
@@ -71,3 +73,27 @@ def rewrite_nonportable_content_links(source_course_id, dest_course_id, text):
             logging.warning("Error producing regex substitution %r for text = %r.\n\nError msg = %s", source_course_id, text, str(exc))
 
     return text
+
+
+def module_node_contructor(module, url, parent_url, location=None, parent_location=None, index=None):
+    """Contructs a module_node namedtuple with defaults"""
+    module_node = namedtuple('module_node', ['module', 'location', 'url', 'parent_location', 'parent_url', 'index'])
+    return module_node(module, location, url, parent_location, parent_url, index)
+
+
+def get_subtree_roots(module_nodes, use_locations=False):
+    """
+    Takes a list of module_nodes and returns the roots of any trees represented
+    by the list
+    """
+    urls = [module_node.url for module_node in module_nodes]
+
+    for module_node in module_nodes:
+        # assume that parents can be draft
+        parent_cannot_be_draft = False
+        if use_locations:
+            # unless we have access to parent locations
+            parent_cannot_be_draft = module_node.parent_location.category in DIRECT_ONLY_CATEGORIES
+
+        if parent_cannot_be_draft or module_node.parent_url not in urls:
+            yield module_node
