@@ -44,9 +44,11 @@ The Discussion Page
 When you go to the **Discussion** page in your course, you'll see a page that
 looks like the following.
 
-.. image:: /Images/SFD_DiscussionHomeCallouts.png
+.. image:: /Images/DiscussionHomeCallouts.png
    :width: 800
-   :alt: Discussion home page with a topics pane on the left side and "How to use edX discussions" pane on the right
+
+
+alt Discussion home page with a topics pane on the left side and "How to use edX discussions" pane on the right
 
 ==========
 Left Pane

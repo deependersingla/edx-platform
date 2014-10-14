@@ -43,9 +43,9 @@ You can add a post for a content-specific discussion topic inside the course.
   
 4. To add a post, click **New Post**.
 
-.. image:: /Images/Discussion_content_specific_post.png
-   :width: 500
-   :alt: Adding a post about specific course content
+   .. image:: /Images/Discussion_content_specific_post.png
+     :width: 500
+     :alt: Adding a post about specific course content
 
 5. Select the type of post: click **Question** or **Discussion**.
 
@@ -73,19 +73,21 @@ topics on the **Discussion** page.
 
 #. Click **New Post**.
 
-#. Select the type of post: click **Question** or **Discussion**.
+#. Click **Question** or **Discussion** to select the type of post that you want
+   to create.
 
 #. Select the most appropriate discussion topic for your post.
 
   .. image:: /Images/Discussion_course_wide_post.png
+    :width: 300 
     :alt: Selecting the topic for a new post on the Discussion page 
 
-5. Supply a short, descriptive **Title**. The title is the part of your post
-   that others see when they are browsing on the **Discussion** page or
-   scrolling through one of the content-specific topics.
+5. In the **Title** box, supply a short, descriptive title. The title is the
+   part of your post that others see when they are browsing on the
+   **Discussion** page or scrolling through one of the content-specific topics.
 
-#. Enter the complete text. Options for formatting the text and for adding
-   links or images are available: click the buttons above the text field.
+#. Enter the complete text of your post. To format the text and or add links or
+   images, click the buttons above the text field.
 
 
 If you don't want your name to appear with your post, you can select the **Post
@@ -120,6 +122,7 @@ topic inside the course.
 #. Under the text of the opst, click **Expand discussion**.
    
   .. image:: /Images/Discussion_expand.png
+    :width: 500
     :alt: The **Expand discussion** link under a post
 
 6. Add a response or comment.
@@ -147,8 +150,9 @@ topics on the **Discussion** page.
    is complete, click **Submit**.
 
   .. image:: /Images/Discussion_add_response.png
+    :width: 500
     :alt: The **Add A Response** button located between a post and its 
           responses 
 
- - To add a comment to a response, click in the **Add a comment** field below
+ - To add a comment to a response, click inside the **Add a comment** field below
    the response. When your comment is complete, click **Submit**.   

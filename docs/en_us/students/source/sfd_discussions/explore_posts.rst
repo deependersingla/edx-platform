@@ -5,13 +5,12 @@
 Explore Posts
 ###############################
 
-
-``Finding out whether someone else has already asked the same question or
+Finding out whether someone else has already asked the same question or
 initiated a conversation about the same subject that interests you, and then
 reading and contributing to that exchange instead of starting a new one, helps
 make the time that everyone spends with the course discussions more productive.
 You can search for something specific, or you can browse through the posts in a
-single discussion topic.``
+single discussion topic.
 
 .. _Search Discussions:
 

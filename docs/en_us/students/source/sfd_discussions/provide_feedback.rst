@@ -46,6 +46,7 @@ If you like a post or one of its responses, you can vote for it: view the
 post or response and click the "Vote" icon at top right.
 
 .. image:: /Images/Discussion_vote.png
+ :width: 500
  :alt: A post with the Vote icon circled
 
 You can sort the list of posts so that the posts with the most votes appear at
@@ -53,6 +54,7 @@ the top: click the drop-down list of sorting options and select **by most
 votes**.
 
 .. image:: /Images/Discussion_sortvotes.png
+ :width: 300
  :alt: The list of posts with the "by most votes" sorting option and the 
        number of votes for the post circled
 
@@ -69,6 +71,7 @@ If you find a post particularly interesting and want to return to it in the
 future, you can follow it: view that post and click the "Follow" icon.
 
 .. image:: /Images/Discussion_follow.png
+ :width: 500
  :alt: A post with the Follow icon circled
 
 Each post that you follow appears with a "Following" indicator in the list of
@@ -79,6 +82,7 @@ topic they apply to, click the drop-down Discussion list and select
 **Posts I'm Following**.
 
 .. image:: /Images/Discussion_filterfollowing.png
+ :width: 300
  :alt: The list of posts with the "Posts I'm Following" filter selected. Every
        post in the list shows the following indicator.
 
@@ -96,6 +100,7 @@ correct: click the "Mark as Answer" icon that appears at upper right of
 the response.
 
 .. image:: /Images/Discussion_answer_question.png
+ :width: 500
  :alt: A question and a response, with the Mark as Answer icon circled
 
 After at least one response is marked as the answer, a check or tick mark image
@@ -103,6 +108,7 @@ replaces the question mark image for the post in the list on the **Discussion**
 page.
 
 .. image:: /Images/Discussion_answers_in_list.png
+ :width: 300
  :alt: The list of posts with images identifying unanswered and answered
      questions and discussions
 
