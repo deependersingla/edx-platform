@@ -14,3 +14,4 @@ edX Guide for Students
    SFD_certificates
    SFD_mathformatting
    SFD_ORA
+   sfd_discussions/index
