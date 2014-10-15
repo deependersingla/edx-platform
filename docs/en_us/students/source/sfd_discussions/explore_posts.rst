@@ -47,54 +47,56 @@ post, look through the topics. When you add your post to the most appropriate
 topic, others with the same interest can find, read, and respond to it more
 easily.
 
-Discussion topics for edX courses can be *content-specific* or *course-wide*.
-
-* *Content-specific* discussion topics cover specific video lectures, reading
-  assignments, homework problems, or other course content. When these discussion
-  topics are included in a course, they typically appear below the content they
-  apply to.
-
-  .. image:: /Images/Discussion_content_specific.png
-   :width: 500
-   :alt: A discussion topic that appears below text inside the course, identified
-       by a "Show Discussion" link
-
-  You can also access content-specific topics on the **Discussion** page.
-  Content-specific topics are indented under an identifying category name.
-
-  If you access a content-specific topic on the **Discussion** page and want to 
-  go to the unit in the course where the discussion originates, click the 
-  name of the discussion topic below the text of the post.
-
-  .. image:: /Images/DSC_LinkToCourse.png
-    :width: 800
-    :alt: Post on Discussion page with a link back to the course unit
+Discussion topics for edX courses can be *course-wide* or *content-specific*.
 
 * *Course-wide* discussion topics cover matters that affect the entire course,
   and may include topics such as "Frequently Asked Questions" and
-  "Troubleshooting". To see these topics, click **All Discussions** in the upper
-  left corner of the left pane. Course-wide topics do not have other topics
-  indented below them.
+  "Troubleshooting".
+
+* *Content-specific* discussion topics cover specific video lectures, reading
+  assignments, homework problems, or other course content. 
+
+=======================================
+View Topics on the Discussion Page
+=======================================
+
+On the **Discussion** page, you can view both course-wide and content-specific
+discussions. Click **All Discussions** in the upper left corner of the left pane
+to see all discussion topics in the course. To see all the discussions in an
+individual topic, click the topic name.
+
+Note that course-wide topics do not have other topics indented below them, while
+content-specific topics are indented under a category name. For content-specific
+topics, you can click either the category name to see all the posts in that
+category, or you can click an individual topic name.
 
   .. image:: /Images/Disc_TopicList.png
      :width: 300
      :alt: Discussion topic list expanded, showing all course discussion topics
 
-
-
 =======================================
-Review Posts About a Single Topic
+View Topics in the Body of the Course
 =======================================
 
-To review posts about a particular part of the course or type of issue, click
-**Discussion** at the top of the page and then select a topic from the drop-
-down list. (**All Discussions** is selected by default.) Only posts about the
-topic you select appear in the list of posts.
+Content-specific topics are located in specific units in the course. They typically appear below the content they apply to. 
 
-.. image:: /Images/Discussion_filters.png
- :width: 300
- :alt: The list of posts with callouts to identify the top filter to select 
-       one topic and the filter below it to select by state 
+You can access a content-specific topic by viewing the unit that
+contains the topic. To see the discussion, click **Show Discussion**.
+
+.. image:: /Images/Discussion_content_specific.png
+   :width: 500
+   :alt: A discussion topic that appears below text inside the course, identified
+       by a "Show Discussion" link
+
+You can also use the **Discussion** page to access a discussion in the unit
+where the discussion originates. In the list of topics, click the topic that you
+want, and then click the name of a post so that the post opens in the right
+pane. Then, in the right pane, click the name of the discussion topic below the
+text of the post to go to the discussion inside the unit.
+
+.. image:: /Images/DSC_LinkToCourse.png
+    :width: 800
+    :alt: Post on the Discussion page with a link back to the course unit
 
 *****************************************
 Review Only Unread or Unanswered Posts
