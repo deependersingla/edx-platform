@@ -45,10 +45,8 @@ When you go to the **Discussion** page in your course, you'll see a page that
 looks like the following.
 
 .. image:: /Images/DiscussionHomeCallouts.png
-   :width: 800
-
-
-alt Discussion home page with a topics pane on the left side and "How to use edX discussions" pane on the right
+   :width: 800 
+   :alt: Discussion home page with a topics pane on the left side and "How to use edX discussions" pane on the right
 
 ==========
 Left Pane
@@ -58,7 +56,9 @@ The left pane lists titles and information for all the individual posts in the
 course. The left pane also has filters that you can use to sort discussions by
 topic, status, and activity. 
 
-The left pane includes the following elements:
+The left pane includes the following elements.
+
+.. note:: You can click the image below to enlarge it.
 
 1. The topic filter for course discussions. When you click this list, you can
    see all of the topics in the course discussions. For more information about discussion topics, see :ref:`Discussion Topics`.
@@ -74,8 +74,8 @@ The left pane includes the following elements:
 
 4. The title of the post. The title lets you know what the post is about.
 
-5. The post type. A post can be a question or a discussion. For more 
-information, see :ref:`Add a Post`.
+5. The post type. A post can be a question or a discussion. For more
+   information, see :ref:`Add a Post`.
 
 6. The post search box. You can search all posts, responses, and comments for
    individual words or phrases. For more information, see :ref:`Search Discussions`.
@@ -101,6 +101,8 @@ distinguish between posts, responses, and comments:
 * The post and its title appear at the top of the page.
 * Responses appear in white below the original post.
 * Comments on a response appear in gray below the response.
+
+These elements appear in the image below. You can click the image to enlarge it.
 
 .. image:: ../Images/Disc_PostsEtc.png
    :width: 800

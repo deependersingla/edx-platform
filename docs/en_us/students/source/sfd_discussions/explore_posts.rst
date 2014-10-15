@@ -77,7 +77,7 @@ Discussion topics for edX courses can be *content-specific* or *course-wide*.
   indented below them.
 
   .. image:: /Images/Disc_TopicList.png
-     :width: 250
+     :width: 300
      :alt: Discussion topic list expanded, showing all course discussion topics
 
 
@@ -92,6 +92,7 @@ down list. (**All Discussions** is selected by default.) Only posts about the
 topic you select appear in the list of posts.
 
 .. image:: /Images/Discussion_filters.png
+ :width: 300
  :alt: The list of posts with callouts to identify the top filter to select 
        one topic and the filter below it to select by state 
 
