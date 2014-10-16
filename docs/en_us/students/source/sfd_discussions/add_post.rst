@@ -9,6 +9,13 @@ Add a Post, Response, or Comment
 Add a Post
 ***************************
 
+Every post in the course discussions has an associated topic. Before you add a
+post, look through the topics. When you add your post to the most appropriate
+topic, others with the same interest can find, read, and respond to it more
+easily.
+
+Topics can be *content-specific* or *course-wide*. 
+
 To make sure that other students and the course team can find and respond to
 your post, try to select the correct type for your post: either question or
 discussion.
@@ -23,39 +30,45 @@ If you have any difficulty deciding which type of post you want to add, think
 about whether you want to get concrete information (a question) or start an
 open-ended conversation (a discussion).
 
+You can add a post from inside the course, or you can add a post from the **Discussion** page.
+
 ===============================
 Add a Post inside the Course
 ===============================
 
-You can add a post for a content-specific discussion topic inside the course.
+If you come to a discussion as you work through the units in your course, or if
+you know where in the course a particular discussion originates, you can add a
+post for that discussion right from the unit in your course. This only applies
+to content-specific discussions.
 
 #. Click **Courseware**.
 
-#. Open the part of the course that includes the discussion topic that you want
+#. Open the unit in the course that includes the discussion topic that you want
    to add to.
 
-#. To read what others have already contributed to the conversation, click
-   **Show Discussion**.
+#. Click **Show Discussion** to read what others have already contributed to the
+   conversation.
 
    You can scroll through the posts that have already been added: the title and
    the first sentence or two of each post appear. To read an entire post, view
    the responses to it, and see any comments, click **Expand discussion**.
   
-4. To add a post, click **New Post**.
+4. Click **New Post** to add a post.
 
    .. image:: /Images/Discussion_content_specific_post.png
      :width: 500
      :alt: Adding a post about specific course content
 
-5. Select the type of post: click **Question** or **Discussion**.
+5. Click **Question** or **Discussion** to select the type of post you want to
+   create.
 
-#. Enter a short, descriptive identifier for your post in the **Title** field.
+#. In the **Title** field, enter a short, descriptive identifier for your post.
    The title is the part of your post that others see when they are browsing on
    the **Discussion** page or scrolling through one of the content-specific
    topics.
 
-#. Enter the complete text. Options for formatting the text and for adding
-   links or images are available: click the buttons above the text field.
+#. Enter the complete text of your post. Click the buttons above the text field
+   to see options for formatting the text and for adding links or images.
 
 If you don't want your name to appear with your post, you can select the **Post
 Anonymously** check box under the field where you enter your text. Other
@@ -66,12 +79,12 @@ information if necessary.
 Add a Post on the Discussion Page
 ===================================
 
-You can add a response or comment to course-wide or content-specific discussion
+You can add a post for course-wide or content-specific discussion
 topics on the **Discussion** page.
 
 #. Click the **Discussion** page.
 
-#. Click **New Post**.
+#. In the upper-right corner, click **New Post**.
 
 #. Click **Question** or **Discussion** to select the type of post that you want
    to create.

@@ -42,7 +42,7 @@ The Discussion Page
 **********************************
 
 When you go to the **Discussion** page in your course, you'll see a page that
-looks like the following.
+looks like the following. You can click the image below to enlarge it.
 
 .. image:: /Images/DiscussionHomeCallouts.png
    :width: 800 
@@ -57,8 +57,6 @@ course. The left pane also has filters that you can use to sort discussions by
 topic, status, and activity. 
 
 The left pane includes the following elements.
-
-.. note:: You can click the image below to enlarge it.
 
 1. The topic filter for course discussions. When you click this list, you can
    see all of the topics in the course discussions. For more information about discussion topics, see :ref:`Discussion Topics`.

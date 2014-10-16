@@ -38,9 +38,9 @@ press Enter, the search tries to find:
 
 .. _Discussion Topics:
 
-******************************
-View Discussions by Topic
-******************************
+*********************************************
+View Discussions about a Specific Topic
+*********************************************
 
 Every post in the course discussions has an associated topic. Before you add a
 post, look through the topics. When you add your post to the most appropriate
