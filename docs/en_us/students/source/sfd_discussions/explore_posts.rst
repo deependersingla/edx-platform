@@ -1,9 +1,9 @@
 
 .. _Explore Posts:
 
-###############################
+#########################
 Explore Posts
-###############################
+#########################
 
 Finding out whether someone else has already asked the same question or
 initiated a conversation about the same subject that interests you, and then
