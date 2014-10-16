@@ -4,6 +4,9 @@
 Testing Your Course Content
 ###########################
 
+CT random test of adding text
+
+
 The way your course looks in Studio is not the way that students will see and
 experience it when it is live. 
 
