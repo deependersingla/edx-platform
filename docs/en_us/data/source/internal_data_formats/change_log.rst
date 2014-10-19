@@ -14,6 +14,9 @@ October-December 2014
 
    * - Date
      - Change
+   * - 10/21/14
+     - Added information about the new key introspection format used by course
+       keys to the :ref:`Student_Info` and :ref:`Tracking Logs` chapters.
    * - 10/16/14
      - Updated video events with new fields relating to mobile device use in
        the :ref:`Tracking Logs` chapter.

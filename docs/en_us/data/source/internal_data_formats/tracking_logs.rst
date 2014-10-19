@@ -639,10 +639,19 @@ member fields.
 
    * - ``id``
      - string
-     - For events with an ``event_source`` of 'browser', the edX ID of the
-       video being watched. 
+     - For events with an ``event_source`` of 'browser', the optional name
+       value supplied by the course creators or the system-generated hash code
+       for the video being watched. 
 
-       For example, i4x-HarvardX-PH207x-video-Simple_Random_Sample.
+       For example, 0b9e39477cf34507a7a48f74be381fdd.
+       
+       This value is part of the ``courseware_studentmodule.module_id``. See
+       :ref:`courseware_studentmodule`.
+
+       **History**: In October 2014, identifiers for new courses began to use
+       the format shown above. The format for the ``id`` was an html-escaped
+       version of the ``courseware_studentmodule.module_id``. For example, i4x-
+       HarvardX- PH207x-video-Simple_Random_Sample.
 
    * - ``module_id``
      - string
@@ -2057,10 +2066,20 @@ The browser emits ``problem_show`` events when a problem is shown.
      - Details
    * - ``problem``
      - string
-     - ID of the problem being shown. 
-       
-       For example, i4x://MITx/6.00x/problem/L15:L15_Problem_2.
+     - The optional name value supplied by the course creators or the system-
+       generated hash code for the problem being shown.
 
+       For example, input_303034da25524878a2e66fb57c91cf85_2_1 or
+       303034da25524878a2e66fb57c91cf85_2_1.
+       
+       This value is based on part of the
+       ``courseware_studentmodule.module_id``. See
+       :ref:`courseware_studentmodule`.
+
+       **History**: In October 2014, identifiers for new courses began to use
+       the format shown above. The format for ``problem`` included an html-
+       escaped version of the ``courseware_studentmodule.module_id``. For
+       example, i4x://MITx/6.00x/problem/L15:L15_Problem_2.
 
 ``reset_problem``
 ------------------------------------------------
