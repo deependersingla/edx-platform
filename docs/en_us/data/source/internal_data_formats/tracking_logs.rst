@@ -651,7 +651,7 @@ member fields.
        **History**: In October 2014, identifiers for new courses began to use
        the format shown above. The format for the ``id`` was an html-escaped
        version of the ``courseware_studentmodule.module_id``. For example, i4x-
-       HarvardX- PH207x-video-Simple_Random_Sample.
+       HarvardX-PH207x-video-Simple_Random_Sample.
 
    * - ``module_id``
      - string
