@@ -884,7 +884,7 @@ module_id
   Unique ID for a distinct piece of content in a course. Each module_id is
   recorded as a URL with the format i4x://{org}+{course}+{run}@{module
   type}+block@{module name or hash code}. Having URLs of this form gives
-  content a canonical representation even during a transition between backend
+  content a canonical representation even during a transition between back-end
   data stores.
 
   As an example, this module_id:
@@ -909,25 +909,26 @@ module_id
          this piece of content.
      * - {course}
        - DemoX
-       - The course number this content was created for. 
+       - The course that this content was created for. 
      * - {run}
        - Demo_2014
        - The term or specific iteration of the course. 
      * - type@{module type}
        - type@problem
-       - The module type, same value as found in the
+       - The module type. The same value is stored in the
          ``courseware_studentmodule.module_type`` column.
      * - block@{module name or hash code}
        - block@303034da25524878a2e66fb57c91cf85
-       - The name given to this module by the content creators. If the module
-         was not named, the system generates a hash code as its identifier.
+       - The name that the content creators supplied for this module. If the
+         module does not have a name, the system generates a hash code as its
+         identifier.
 
 **History**: In October 2014, identifiers for modules in new courses began to
 use the format shown above. The format for the module_id prior to this change
-was i4x://{org}/{course}/{module type}/{module name or hash code}. For
-example, i4x://MITx/3.091x/problemset/Sample_Problems. Note that in this
-format, there was no course run information, so the
-``courseware_studentmodule.course_id`` column had to be used as well.
+was i4x://{org}/{course}/{module type}/{module name or hash code}. For example,
+i4x://MITx/3.091x/problemset/Sample_Problems. Note that this format did not
+include course run information, so the ``courseware_studentmodule.course_id``
+column had to be used as well.
 
 ------------
 student_id

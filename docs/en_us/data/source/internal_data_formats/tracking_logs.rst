@@ -640,7 +640,7 @@ member fields.
    * - ``id``
      - string
      - For events with an ``event_source`` of 'browser', the optional name
-       value supplied by the course creators or the system-generated hash code
+       value that the course creators supply or the system-generated hash code
        for the video being watched. 
 
        For example, 0b9e39477cf34507a7a48f74be381fdd.
@@ -2066,8 +2066,8 @@ The browser emits ``problem_show`` events when a problem is shown.
      - Details
    * - ``problem``
      - string
-     - The optional name value supplied by the course creators or the system-
-       generated hash code for the problem being shown.
+     - The optional name value that the course creators supply or the 
+       system-generated hash code for the problem being shown.
 
        For example, input_303034da25524878a2e66fb57c91cf85_2_1 or
        303034da25524878a2e66fb57c91cf85_2_1.
