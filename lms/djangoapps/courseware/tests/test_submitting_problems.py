@@ -62,15 +62,6 @@ class TestSubmittingProblems(ModuleStoreTestCase, LoginEnrollmentTestCase):
         self.student_user = User.objects.get(email=self.student)
         self.factory = RequestFactory()
 
-    def add_grading_policy(self, grading_policy):
-        """
-        Add a grading policy to the course.
-        """
-
-        self.course.grading_policy = grading_policy
-        self.update_course(self.course, self.student_user.id)
-        self.refresh_course()
-
     def refresh_course(self):
         """
         Re-fetch the course from the database so that the object being dealt with has everything added to it.
@@ -229,20 +220,14 @@ class TestSubmittingProblems(ModuleStoreTestCase, LoginEnrollmentTestCase):
         self.refresh_course()
         return section
 
-    def check_grade_percent(self, percent):
+    def add_grading_policy(self, grading_policy):
         """
-        Assert that percent grade is as expected.
+        Add a grading policy to the course.
         """
-        grade_summary = self.get_grade_summary()
-        self.assertEqual(grade_summary['percent'], percent)
 
-    def earned_hw_scores(self):
-        """
-        Global scores, each Score is a Problem Set.
-
-        Returns list of scores: [<points on hw_1>, <points on hw_2>, ..., <points on hw_n>]
-        """
-        return [s.earned for s in self.get_grade_summary()['totaled_scores']['Homework']]
+        self.course.grading_policy = grading_policy
+        self.update_course(self.course, self.student_user.id)
+        self.refresh_course()
 
     def get_grade_summary(self):
         """
@@ -262,23 +247,6 @@ class TestSubmittingProblems(ModuleStoreTestCase, LoginEnrollmentTestCase):
         )
 
         return grades.grade(self.student_user, fake_request, self.course)
-
-    def score_for_hw(self, hw_url_name):
-        """
-        Returns list of scores for a given url.
-
-        Returns list of scores for the given homework:
-            [<points on problem_1>, <poinst on problem_2>, ..., <poinst on problem_n>]
-        """
-
-        # list of grade summaries for each section
-        sections_list = []
-        for chapter in self.get_progress_summary():
-            sections_list.extend(chapter['sections'])
-
-        # get the first section that matches the url (there should only be one)
-        hw_section = next(section for section in sections_list if section.get('url_name') == hw_url_name)
-        return [s.earned for s in hw_section['scores']]
 
     def get_progress_summary(self):
         """
@@ -300,6 +268,38 @@ class TestSubmittingProblems(ModuleStoreTestCase, LoginEnrollmentTestCase):
             self.student_user, fake_request, self.course
         )
         return progress_summary
+
+    def check_grade_percent(self, percent):
+        """
+        Assert that percent grade is as expected.
+        """
+        grade_summary = self.get_grade_summary()
+        self.assertEqual(grade_summary['percent'], percent)
+
+    def earned_hw_scores(self):
+        """
+        Global scores, each Score is a Problem Set.
+
+        Returns list of scores: [<points on hw_1>, <points on hw_2>, ..., <points on hw_n>]
+        """
+        return [s.earned for s in self.get_grade_summary()['totaled_scores']['Homework']]
+
+    def score_for_hw(self, hw_url_name):
+        """
+        Returns list of scores for a given url.
+
+        Returns list of scores for the given homework:
+            [<points on problem_1>, <points on problem_2>, ..., <points on problem_n>]
+        """
+
+        # list of grade summaries for each section
+        sections_list = []
+        for chapter in self.get_progress_summary():
+            sections_list.extend(chapter['sections'])
+
+        # get the first section that matches the url (there should only be one)
+        hw_section = next(section for section in sections_list if section.get('url_name') == hw_url_name)
+        return [s.earned for s in hw_section['scores']]
 
 
 class TestCourseGrader(TestSubmittingProblems):
