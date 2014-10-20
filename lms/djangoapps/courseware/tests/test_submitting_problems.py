@@ -32,11 +32,14 @@ from lms.lib.xblock.runtime import quote_slashes
 from student.tests.factories import UserFactory
 from student.models import anonymous_id_for_user
 
+from xmodule.partitions.partitions import Group, UserPartition
+from user_api.tests.factories import UserCourseTagFactory
+
 
 @override_settings(MODULESTORE=TEST_DATA_MIXED_MODULESTORE)
 class TestSubmittingProblems(ModuleStoreTestCase, LoginEnrollmentTestCase):
     """
-        Check that a course gets graded properly.
+    Check that a course gets graded properly.
     """
 
     # arbitrary constant
@@ -58,6 +61,15 @@ class TestSubmittingProblems(ModuleStoreTestCase, LoginEnrollmentTestCase):
         self.enroll(self.course)
         self.student_user = User.objects.get(email=self.student)
         self.factory = RequestFactory()
+
+    def add_grading_policy(self, grading_policy):
+        """
+        Add a grading policy to the course.
+        """
+
+        self.course.grading_policy = grading_policy
+        self.update_course(self.course, self.student_user.id)
+        self.refresh_course()
 
     def refresh_course(self):
         """
@@ -217,20 +229,20 @@ class TestSubmittingProblems(ModuleStoreTestCase, LoginEnrollmentTestCase):
         self.refresh_course()
         return section
 
-
-class TestCourseGrader(TestSubmittingProblems):
-    """
-    Suite of tests for the course grader.
-    """
-
-    def add_grading_policy(self, grading_policy):
+    def check_grade_percent(self, percent):
         """
-        Add a grading policy to the course.
+        Assert that percent grade is as expected.
         """
+        grade_summary = self.get_grade_summary()
+        self.assertEqual(grade_summary['percent'], percent)
 
-        self.course.grading_policy = grading_policy
-        self.update_course(self.course, self.student_user.id)
-        self.refresh_course()
+    def earned_hw_scores(self):
+        """
+        Global scores, each Score is a Problem Set.
+
+        Returns list of scores: [<points on hw_1>, <points on hw_2>, ..., <points on hw_n>]
+        """
+        return [s.earned for s in self.get_grade_summary()['totaled_scores']['Homework']]
 
     def get_grade_summary(self):
         """
@@ -250,6 +262,23 @@ class TestCourseGrader(TestSubmittingProblems):
         )
 
         return grades.grade(self.student_user, fake_request, self.course)
+
+    def score_for_hw(self, hw_url_name):
+        """
+        Returns list of scores for a given url.
+
+        Returns list of scores for the given homework:
+            [<points on problem_1>, <poinst on problem_2>, ..., <poinst on problem_n>]
+        """
+
+        # list of grade summaries for each section
+        sections_list = []
+        for chapter in self.get_progress_summary():
+            sections_list.extend(chapter['sections'])
+
+        # get the first section that matches the url (there should only be one)
+        hw_section = next(section for section in sections_list if section.get('url_name') == hw_url_name)
+        return [s.earned for s in hw_section['scores']]
 
     def get_progress_summary(self):
         """
@@ -272,38 +301,11 @@ class TestCourseGrader(TestSubmittingProblems):
         )
         return progress_summary
 
-    def check_grade_percent(self, percent):
-        """
-        Assert that percent grade is as expected.
-        """
-        grade_summary = self.get_grade_summary()
-        self.assertEqual(grade_summary['percent'], percent)
 
-    def earned_hw_scores(self):
-        """
-        Global scores, each Score is a Problem Set.
-
-        Returns list of scores: [<points on hw_1>, <poinst on hw_2>, ..., <poinst on hw_n>]
-        """
-        return [s.earned for s in self.get_grade_summary()['totaled_scores']['Homework']]
-
-    def score_for_hw(self, hw_url_name):
-        """
-        Returns list of scores for a given url.
-
-        Returns list of scores for the given homework:
-            [<points on problem_1>, <poinst on problem_2>, ..., <poinst on problem_n>]
-        """
-
-        # list of grade summaries for each section
-        sections_list = []
-        for chapter in self.get_progress_summary():
-            sections_list.extend(chapter['sections'])
-
-        # get the first section that matches the url (there should only be one)
-        hw_section = next(section for section in sections_list if section.get('url_name') == hw_url_name)
-        return [s.earned for s in hw_section['scores']]
-
+class TestCourseGrader(TestSubmittingProblems):
+    """
+    Suite of tests for the course grader.
+    """
     def basic_setup(self, late=False, reset=False, showanswer=False):
         """
         Set up a simple course for testing basic grading functionality.
@@ -1050,3 +1052,194 @@ class TestAnswerDistributions(TestSubmittingProblems):
                     },
                 }
             )
+
+
+class TestConditionalContent(TestSubmittingProblems):
+    """
+    Check that conditional content works correctly with grading.
+    """
+    def setUp(self):
+        """
+        Set up a simple course with 2 sections, both graded as "homework".
+
+        One section is pre-populated with 2 homework assignments, visible to all students.
+
+        The second section is empty. Test courses should add conditional content to it.
+        """
+        super(TestConditionalContent, self).setUp()
+
+        self.partition = UserPartition(
+            0,
+            'first_partition',
+            'First Partition',
+            [
+                Group(0, 'alpha'),
+                Group(1, 'beta')
+            ]
+        )
+
+        self.course = CourseFactory.create(
+            display_name=self.COURSE_NAME,
+            number=self.COURSE_SLUG,
+            user_partitions=[self.partition]
+        )
+
+        grading_policy = {
+            "GRADER": [{
+                "type": "Homework",
+                "min_count": 2,
+                "drop_count": 0,
+                "short_label": "HW",
+                "weight": 1.0
+            }]
+        }
+        self.add_grading_policy(grading_policy)
+
+        self.homework_all = self.add_graded_section_to_course('homework1')
+        self.p1_all_html_id = self.add_dropdown_to_section(self.homework_all.location, 'H1P1', 1).location.html_id()
+        self.p2_all_html_id = self.add_dropdown_to_section(self.homework_all.location, 'H1P2', 1).location.html_id()
+
+        self.homework_conditional = self.add_graded_section_to_course('homework2')
+
+    def create_split(self, conditional_urls):
+        """
+        Adds a split_test instance to the course as a child of self.homework_conditional and returns the
+        split_test instance.
+        """
+        group_id_to_child = {}
+        for index, url in enumerate(conditional_urls):
+            group_id_to_child[str(index)] = url
+
+        split_test = ItemFactory.create(
+            parent_location=self.homework_conditional.location,
+            category="split_test",
+            display_name="Split test",
+            user_partition_id='0',
+            group_id_to_child=group_id_to_child,
+        )
+
+        return split_test
+
+    def split_different_problems_setup(self, user_partition_group):
+        vertical_0_url = self.course.id.make_usage_key("vertical", "split_test_vertical_0")
+        vertical_1_url = self.course.id.make_usage_key("vertical", "split_test_vertical_1")
+
+        split_test = self.create_split([vertical_0_url, vertical_1_url])
+
+        # Group 0 will have 2 problems in the section, worth a total of 3 points.
+        vertical_0 = ItemFactory.create(
+            parent_location=split_test.location,
+            category="vertical",
+            display_name="Condition 0 vertical",
+            location=vertical_0_url,
+        )
+
+        self.add_dropdown_to_section(vertical_0.location, 'H2P1', 1).location.html_id()
+        self.add_dropdown_to_section(vertical_0.location, 'H2P2', 3).location.html_id()
+
+        vertical_1 = ItemFactory.create(
+            parent_location=split_test.location,
+            category="vertical",
+            display_name="Condition 1 vertical",
+            location=vertical_1_url,
+        )
+
+        # Group 1 will have 1 problem in the section, worth a total of 1 point.
+        self.add_dropdown_to_section(vertical_1.location, 'H2P1', 1).location.html_id()
+
+        # Now add the student to the specified group.
+        UserCourseTagFactory(
+            user=self.student_user,
+            course_id=self.course.id,
+            key='xblock.partition_service.partition_{0}'.format(self.partition.id),
+            value=user_partition_group
+        )
+
+        self.submit_question_answer('H1P1', {'2_1': 'Correct'})
+        self.submit_question_answer('H1P2', {'2_1': 'Incorrect'})
+
+    def test_split_different_problems_group_0(self):
+        """
+        Tests that users who see different problems in a split_test module instance are graded correctly.
+        """
+        self.split_different_problems_setup("0")
+
+        self.submit_question_answer('H2P1', {'2_1': 'Correct'})
+        self.submit_question_answer('H2P2', {'2_1': 'Correct', '2_2': 'Incorrect', '2_3': 'Correct'})
+
+        self.assertEqual(self.score_for_hw('homework1'), [1.0, 0.0])
+        self.assertEqual(self.score_for_hw('homework2'), [1.0, 2.0])
+        self.assertEqual(self.earned_hw_scores(), [1.0, 3.0])
+        self.check_grade_percent(0.63)
+
+    def test_split_different_problems_group_1(self):
+        """
+        Tests that users who see different problems in a split_test module instance are graded correctly.
+        """
+        self.split_different_problems_setup("1")
+
+        self.submit_question_answer('H2P1', {'2_1': 'Correct'})
+
+        self.assertEqual(self.score_for_hw('homework1'), [1.0, 0.0])
+        self.assertEqual(self.score_for_hw('homework2'), [1.0])
+        self.assertEqual(self.earned_hw_scores(), [1.0, 1.0])
+        self.check_grade_percent(0.75)
+
+    def split_one_group_no_problems_setup(self, user_partition_group):
+        vertical_0_url = self.course.id.make_usage_key("vertical", "split_test_vertical_0")
+        vertical_1_url = self.course.id.make_usage_key("vertical", "split_test_vertical_1")
+
+        split_test = self.create_split([vertical_0_url, vertical_1_url])
+
+        # Group 0 will have no problems in it.
+        ItemFactory.create(
+            parent_location=split_test.location,
+            category="vertical",
+            display_name="Condition 0 vertical",
+            location=vertical_0_url,
+        )
+
+        vertical_1 = ItemFactory.create(
+            parent_location=split_test.location,
+            category="vertical",
+            display_name="Condition 1 vertical",
+            location=vertical_1_url,
+        )
+
+        # Group 1 will have 1 problem in the section, worth a total of 1 point.
+        self.add_dropdown_to_section(vertical_1.location, 'H2P1', 1).location.html_id()
+
+        # Now add the student to unlucky group 0.
+        UserCourseTagFactory(
+            user=self.student_user,
+            course_id=self.course.id,
+            key='xblock.partition_service.partition_{0}'.format(self.partition.id),
+            value=user_partition_group
+        )
+
+        self.submit_question_answer('H1P1', {'2_1': 'Correct'})
+        self.submit_question_answer('H1P2', {'2_1': 'Correct'})
+
+    def test_split_one_group_no_problems_group_0(self):
+        """
+        Tests what happens when a given group has no problems in it (students receive 0 for that section).
+        """
+        self.split_one_group_no_problems_setup("0")
+
+        self.assertEqual(self.score_for_hw('homework1'), [1.0, 1.0])
+        self.assertEqual(self.score_for_hw('homework2'), [])
+        self.assertEqual(self.earned_hw_scores(), [2.0, 0.0])
+        self.check_grade_percent(0.50)
+
+    def test_split_one_group_no_problems_group_1(self):
+        """
+        Verifies students in the group that DOES have a problem receive a score for their problem.
+        """
+        self.split_one_group_no_problems_setup("1")
+
+        self.submit_question_answer('H2P1', {'2_1': 'Correct'})
+
+        self.assertEqual(self.score_for_hw('homework1'), [1.0, 1.0])
+        self.assertEqual(self.score_for_hw('homework2'), [1.0])
+        self.assertEqual(self.earned_hw_scores(), [2.0, 1.0])
+        self.check_grade_percent(1.0)
