@@ -15,9 +15,18 @@
 
 .. _Problems and Tools:  http://edx-open-learning-xml.readthedocs.org/en/latest/problem-xml/index.html
 
+.. _ODL Directory Structure: http://edx-open-learning-xml.readthedocs.org/en/latest/directory-structure.html#odl-directory-structure
 
+.. Student-facing doc links
 
 .. _EdX Guide for Students: http://edx-guide-for-students.readthedocs.org/en/latest/
+
+
+.. Platform API guide links
+
+.. _edX Platform API Version 5.0: http://edx-platform-api.readthedocs.org/en/latest/index.html
+
+.. other links not yet categorized carefully
 
 .. _Cohorts: http://edx.readthedocs.org/projects/edx-partner-course-staff/en/latest/cohorts/index.html
 
