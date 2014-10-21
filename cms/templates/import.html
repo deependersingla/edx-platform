@@ -260,7 +260,9 @@ $('#fileupload').fileupload({
     },
     start: function(e) {
         window.onbeforeunload = function() {
-            return "${_("Your import is in progress; navigating away will abort it.")}";
+            if (!CourseImport.navigateAway) {
+                return "${_("Your import is in progress; navigating away will abort it.")}";
+            }
         }
     },
     sequentialUploads: true,

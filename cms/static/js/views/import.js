@@ -49,6 +49,7 @@ define(
          */
         var getStatus = function (url, timeout, stage) {
             var currentStage = stage || 0;
+            if (currentStage > 1) { CourseImport.navigateAway = true; }
             if (CourseImport.stopGetStatus) { return ;}
 
             if (currentStage === 4) {
@@ -87,6 +88,7 @@ define(
              * progress.
              */
             stopGetStatus: false,
+            navigateAway: false,
 
             /**
              * Update DOM to set all stages as not-started (for retrying an upload that
