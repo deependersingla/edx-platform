@@ -94,12 +94,8 @@ if [ -e $HOME/edx-venv_clean.tar.gz ]; then
     tar -C $HOME -xf $HOME/edx-venv_clean.tar.gz
 fi
 
-# Activate the Python virtualenv
-source $HOME/edx-venv/bin/activate
-
 echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 pwd
-users
 ls -l
 echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 mkdir /mnt/ramdisk
@@ -108,6 +104,9 @@ mount -t tmpfs -o size=256m tmpfs /mnt/ramdisk
 echo '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'
 ls -l /mnt/ramdisk/
 echo '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'
+
+# Activate the Python virtualenv
+source $HOME/edx-venv/bin/activate
 
 
 # If the environment variable 'SHARD' is not set, default to 'all'.
