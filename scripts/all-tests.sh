@@ -98,9 +98,9 @@ echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 pwd
 ls -l
 echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-mkdir /mnt/ramdisk
-cp -rf common/test/data/* /mnt/ramdisk/
-mount -t tmpfs -o size=256m tmpfs /mnt/ramdisk
+sudo mkdir /mnt/ramdisk
+sudo cp -rf common/test/data/* /mnt/ramdisk/
+sudo mount -t tmpfs -o size=256m tmpfs /mnt/ramdisk
 echo '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'
 ls -l /mnt/ramdisk/
 echo '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'
