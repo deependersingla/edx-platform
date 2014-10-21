@@ -82,7 +82,8 @@ STATUS_MESSAGE_PATH = TEST_ROOT / "status_message.json"
 COURSES_ROOT = TEST_ROOT / "data"
 DATA_DIR = COURSES_ROOT
 
-COMMON_TEST_DATA_ROOT = COMMON_ROOT / "test" / "data"
+# COMMON_TEST_DATA_ROOT = COMMON_ROOT / "test" / "data"
+COMMON_TEST_DATA_ROOT = path('/mnt/ramdisk')
 # Where the content data is checked out.  This may not exist on jenkins.
 GITHUB_REPO_ROOT = ENV_ROOT / "data"
 

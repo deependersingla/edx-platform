@@ -97,6 +97,19 @@ fi
 # Activate the Python virtualenv
 source $HOME/edx-venv/bin/activate
 
+echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+pwd
+users
+ls -l
+echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+mkdir /mnt/ramdisk
+cp -rf common/test/data/* /mnt/ramdisk/
+mount -t tmpfs -o size=256m tmpfs /mnt/ramdisk
+echo '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'
+ls -l /mnt/ramdisk/
+echo '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'
+
+
 # If the environment variable 'SHARD' is not set, default to 'all'.
 # This could happen if you are trying to use this script from
 # jenkins and do not define 'SHARD' in your multi-config project.

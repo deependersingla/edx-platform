@@ -30,6 +30,9 @@ from xmodule.modulestore.split_mongo.split_draft import DraftVersioningModuleSto
 from xmodule.modulestore.tests.mongo_connection import MONGO_PORT_NUM, MONGO_HOST
 from xmodule.modulestore.inheritance import InheritanceMixin
 from xmodule.x_module import XModuleMixin
+from django.conf import settings
+
+TEST_DATA_DIR = settings.COMMON_TEST_DATA_ROOT
 
 
 COMMON_DOCSTORE_CONFIG = {
@@ -288,7 +291,7 @@ class CrossStoreXMLRoundtrip(CourseComparisonTest):
                         import_from_xml(
                             source_store,
                             'test_user',
-                            'common/test/data',
+                            TEST_DATA_DIR,
                             course_dirs=[course_data_name],
                             static_content_store=source_content,
                             target_course_id=source_course_key,
