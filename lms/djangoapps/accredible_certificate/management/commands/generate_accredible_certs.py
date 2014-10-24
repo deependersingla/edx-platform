@@ -1,4 +1,4 @@
-nagement command to find all students that need certificates for
+"from management command to find all students that need certificates for
 courses that have finished, and put their cert requests on the queue.
 """
 from django.core.management.base import BaseCommand, CommandError
