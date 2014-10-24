@@ -1334,6 +1334,7 @@ INSTALLED_APPS = (
     'instructor',
     'instructor_task',
     'open_ended_grading',
+    'accredible_certificate',
     'psychometrics',
     'licenses',
     'course_groups',
