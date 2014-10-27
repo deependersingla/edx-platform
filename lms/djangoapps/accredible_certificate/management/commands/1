@@ -4,7 +4,7 @@ courses that have finished, and put their cert requests on the queue.
 """
 from django.core.management.base import BaseCommand, CommandError
 from certificates.models import certificate_status_for_student
-from accredible_certificate.queue import XQueueCertInterface
+from accredible_certificates.queue import XQueueCertInterface
 from django.contrib.auth.models import User
 from optparse import make_option
 from django.conf import settings
