@@ -56,11 +56,6 @@ class CertificateGeneration(object):
         # Get basic auth (username/password) for
         # xqueue connection if it's in the settings
 
-        if settings.XQUEUE_INTERFACE.get('basic_auth') is not None:
-            requests_auth = HTTPBasicAuth(
-                *settings.XQUEUE_INTERFACE['basic_auth'])
-        else:
-            requests_auth = None
 
         if request is None:
             factory = RequestFactory()
@@ -68,11 +63,6 @@ class CertificateGeneration(object):
         else:
             self.request = request
 
-        self.xqueue_interface = XQueueInterface(
-            settings.XQUEUE_INTERFACE['url'],
-            settings.XQUEUE_INTERFACE['django_auth'],
-            requests_auth,
-        )
         self.whitelist = CertificateWhitelist.objects.all()
         self.restricted = UserProfile.objects.filter(allow_certificate=False)
         
