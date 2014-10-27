@@ -4,7 +4,7 @@ courses that have finished, and put their cert requests on the queue.
 """
 from django.core.management.base import BaseCommand, CommandError
 from certificates.models import certificate_status_for_student
-from accredible_certificate.queue import XQueueCertInterface
+from accredible_certificate.queue import CertificateGeneration
 from django.contrib.auth.models import User
 from optparse import make_option
 from django.conf import settings
@@ -32,16 +32,6 @@ class Command(BaseCommand):
     """
 
     option_list = BaseCommand.option_list + (
-       make_option('-n', '--noop',
-                    action='store_true',
-                    dest='noop',
-                    default=False,
-                    help="Don't add certificate requests to the queue"),
-        make_option('--insecure',
-                    action='store_true',
-                    dest='insecure',
-                    default=False,
-                    help="Don't use https for the callback url to the LMS, useful in http test environments"),
         make_option('-c', '--course',
                     metavar='COURSE_ID',
                     dest='course',
@@ -93,32 +83,15 @@ class Command(BaseCommand):
             enrolled_students = User.objects.filter(
                 courseenrollment__course_id=course_key)
 
-            xq = XQueueCertInterface()
+            xq = CertificateGeneration()
             total = enrolled_students.count()
-            count = 0
-            start = datetime.datetime.now(UTC)
-
+            print "Total number of students: "+ str(total)
             for student in enrolled_students:
-                count += 1
-                if count % STATUS_INTERVAL == 0:
-                	 # Print a status update with an approximation of
-                    # how much time is left based on how long the last
-                    # interval took
-                    diff = datetime.datetime.now(UTC) - start
-                    timeleft = diff * (total - count) / STATUS_INTERVAL
-                    hours, remainder = divmod(timeleft.seconds, 3600)
-                    minutes, seconds = divmod(remainder, 60)
-                    print "{0}/{1} completed ~{2:02}:{3:02}m remaining".format(
-                        count, total, hours, minutes)
-                    start = datetime.datetime.now(UTC)
-
                 if certificate_status_for_student(
-                        student, course_key)['status'] in valid_statuses:
-                    if not options['noop']:
-                        # Add the certificate request to the queue
-                        ret = xq.add_cert(student, course_key, course=course)
-                        if ret == 'generating':
-                            print '{0} - {1}'.format(student, ret)
+                    student, course_key)['status'] in valid_statuses:
+                      ret = xq.add_cert(student, course_key, course=course)
+                      print ret
 
          
+
 

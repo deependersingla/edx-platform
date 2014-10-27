@@ -24,16 +24,12 @@ import requests
 logger = logging.getLogger(__name__)
 
 
-class XQueueCertInterface(object):
+class CertificateGeneration(object):
     """
-    XQueueCertificateInterface provides an
-    interface to the xqueue server for
-    managing student certificates.
+    AccredibleCertificate generates an
+    accredible certificates for students
 
-    Instantiating an object will create a new
-    connection to the queue server.
-
-    See models.py for valid state transitions,
+    See certificates/models.py for valid state transitions,
     summary of methods:
 
        add_cert:   Add a new certificate.  Puts a single
@@ -79,8 +75,7 @@ class XQueueCertInterface(object):
         )
         self.whitelist = CertificateWhitelist.objects.all()
         self.restricted = UserProfile.objects.filter(allow_certificate=False)
-        self.use_https = True
-
+        
 
     def add_cert(self, student, course_id, course=None, forced_grade=None, template_file=None, title='None'):
         """
@@ -180,8 +175,6 @@ class XQueueCertInterface(object):
                     cert.status = new_status
                     cert.save()
                 else:
-                    key = make_hashkey(random.random())
-                    cert.key = key
                     contents = {
                         'action': 'create',
                         'username': student.username,
@@ -193,14 +186,22 @@ class XQueueCertInterface(object):
                     }
                     if template_file:
                         contents['template_pdf'] = template_file
-                    new_status = status.generating
-                    cert.status = new_status
-                    cert.save()
-                    #course_description = courses.get_course_overview_section(course)
                     payload = {"credential": { "name": course_name, "description": "course_description", "achievement_id": contents['course_id'], "grade": contents['grade'], "recipient": {"name": contents['name'], "email": student.email}}}
                     payload = json.dumps(payload)
-                    requests.post('https://staging.accredible.com/v1/credentials', payload, headers={'Authorization':'Token token="accredible_secret123"', 'Content-Type':'application/json'})
-
+                    r = requests.post('https://staging.accredible.com/v1/credentials', payload, headers={'Authorization':'Token token="accredible_secret123"', 'Content-Type':'application/json'})
+                    if r.status_code == 200:
+                       json_response = r.json()
+                       new_status = 'downloadable'  
+                       cert.status = new_status
+                       cert.key = json_response["credential"]["id"]
+                       if 'private' in json_response:
+                          cert.download_url = "https://wwww.accredible.com/" + str(json_response["credential"]["id"]) + "?key" + str(json_response["private_key"])
+                       else:
+                          cert.download_url = "https://www.accredible.com/" + str(json_response["credential"]["id"])
+                       cert.save()
+                    else:
+                        new_status = "errors"
+                    
 
             else:
                 cert_status = status.notpassing
@@ -208,4 +209,5 @@ class XQueueCertInterface(object):
                 cert.save()
 
         return new_status
+
 
