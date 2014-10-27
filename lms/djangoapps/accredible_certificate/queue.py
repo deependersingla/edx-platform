@@ -51,7 +51,7 @@ class CertificateGeneration(object):
 
     """
 
-    def __init__(self, request=None):
+    def __init__(self, request=None, api_key=None):
 
         # Get basic auth (username/password) for
         # xqueue connection if it's in the settings
@@ -65,6 +65,7 @@ class CertificateGeneration(object):
 
         self.whitelist = CertificateWhitelist.objects.all()
         self.restricted = UserProfile.objects.filter(allow_certificate=False)
+        self.api_key = api_key
         
 
     def add_cert(self, student, course_id, course=None, forced_grade=None, template_file=None, title='None'):
@@ -170,7 +171,7 @@ class CertificateGeneration(object):
                     }
                     payload = {"credential": { "name": course_name, "description": "course_description", "achievement_id": contents['course_id'], "grade": contents['grade'], "recipient": {"name": contents['name'], "email": student.email}}}
                     payload = json.dumps(payload)
-                    r = requests.post('https://staging.accredible.com/v1/credentials', payload, headers={'Authorization':'Token token="accredible_secret123"', 'Content-Type':'application/json'})
+                    r = requests.post('https://staging.accredible.com/v1/credentials', payload, headers={'Authorization':'Token token=' + self.api_key, 'Content-Type':'application/json'})
                     if r.status_code == 200:
                        json_response = r.json()
                        new_status = 'downloadable'  

@@ -46,6 +46,12 @@ class Command(BaseCommand):
                     'whose entry in the certificate table matches STATUS. '
                     'STATUS can be generating, unavailable, deleted, error '
                     'or notpassing.'),
+        make_option('-a', '--api_key',
+                    metavar='API_KEY',
+                    dest='api_key',
+                    default=None,
+                    help='API key for accredible Certificate, if don\'t have one'
+                    'Visit https://accredible.com/issuer/sign_up and get one'),    
     )
 
     def handle(self, *args, **options):
@@ -74,6 +80,10 @@ class Command(BaseCommand):
         else:
             raise CommandError("You must specify a course")
         
+        if options['api_key']:
+            api_key = options['api_key']
+        else:
+            raise CommandError("You must give a api_key, if don't have one visit: https://accredible.com/issuer/sign_up")
 
         for course_key in ended_courses:
             # prefetch all chapters/sequentials by saying depth=2
@@ -83,9 +93,9 @@ class Command(BaseCommand):
             enrolled_students = User.objects.filter(
                 courseenrollment__course_id=course_key)
 
-            xq = CertificateGeneration()
+            xq = CertificateGeneration(api_key=api_key)
             total = enrolled_students.count()
-            print "Total number of students: "+ str(total)
+            print "Total number of students: " + str(total) 
             for student in enrolled_students:
                 if certificate_status_for_student(
                     student, course_key)['status'] in valid_statuses:
