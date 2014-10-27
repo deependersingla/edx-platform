@@ -137,14 +137,9 @@ class CertificateGeneration(object):
             user_is_verified = SoftwareSecurePhotoVerification.user_is_verified(student)
             user_is_reverified = SoftwareSecurePhotoVerification.user_is_reverified_for_all(course_id, student)
             cert_mode = enrollment_mode
-            if (mode_is_verified and user_is_verified and user_is_reverified):
-                template_pdf = "certificate-template-{id.org}-{id.course}-verified.pdf".format(id=course_id)
-            elif (mode_is_verified and not (user_is_verified and user_is_reverified)):
-                template_pdf = "certificate-template-{id.org}-{id.course}.pdf".format(id=course_id)
+            if (mode_is_verified and not (user_is_verified and user_is_reverified)):
                 cert_mode = GeneratedCertificate.MODES.honor
-            else:
-                # honor code and audit students
-                template_pdf = "certificate-template-{id.org}-{id.course}.pdf".format(id=course_id)
+        
             if forced_grade:
                 grade['grade'] = forced_grade
 
@@ -181,11 +176,8 @@ class CertificateGeneration(object):
                         'course_id': course_id.to_deprecated_string(),
                         'course_name': course_name,
                         'name': profile_name,
-                        'grade': grade_contents,
-                        'template_pdf': template_pdf,
+                        'grade': grade_contents
                     }
-                    if template_file:
-                        contents['template_pdf'] = template_file
                     payload = {"credential": { "name": course_name, "description": "course_description", "achievement_id": contents['course_id'], "grade": contents['grade'], "recipient": {"name": contents['name'], "email": student.email}}}
                     payload = json.dumps(payload)
                     r = requests.post('https://staging.accredible.com/v1/credentials', payload, headers={'Authorization':'Token token="accredible_secret123"', 'Content-Type':'application/json'})
@@ -197,7 +189,7 @@ class CertificateGeneration(object):
                        if 'private' in json_response:
                           cert.download_url = "https://wwww.accredible.com/" + str(json_response["credential"]["id"]) + "?key" + str(json_response["private_key"])
                        else:
-                          cert.download_url = "https://www.accredible.com/" + str(json_response["credential"]["id"])
+                          cert.download_url = "https://www.accredible.com/" + str(cert.key)
                        cert.save()
                     else:
                         new_status = "errors"
