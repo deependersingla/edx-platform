@@ -17,8 +17,6 @@ import random
 import logging
 import lxml.html
 from lxml.etree import XMLSyntaxError, ParserError
-import requests
-
 
 
 logger = logging.getLogger(__name__)
@@ -81,6 +79,51 @@ class XQueueCertInterface(object):
         self.restricted = UserProfile.objects.filter(allow_certificate=False)
         self.use_https = True
 
+    def regen_cert(self, student, course_id, course=None, forced_grade=None, template_file=None):
+        """(Re-)Make certificate for a particular student in a particular course
+
+        Arguments:
+          student   - User.object
+          course_id - courseenrollment.course_id (string)
+
+        WARNING: this command will leave the old certificate, if one exists,
+                 laying around in AWS taking up space. If this is a problem,
+                 take pains to clean up storage before running this command.
+
+        Change the certificate status to unavailable (if it exists) and request
+        grading. Passing grades will put a certificate request on the queue.
+
+        Return the status object.
+        """
+        # TODO: when del_cert is implemented and plumbed through certificates
+        #       repo also, do a deletion followed by a creation r/t a simple
+        #       recreation. XXX: this leaves orphan cert files laying around in
+        #       AWS. See note in the docstring too.
+        try:
+            certificate = GeneratedCertificate.objects.get(user=student, course_id=course_id)
+            certificate.status = status.unavailable
+            certificate.save()
+        except GeneratedCertificate.DoesNotExist:
+            pass
+
+        return self.add_cert(student, course_id, course, forced_grade, template_file)
+
+    def del_cert(self, student, course_id):
+
+        """
+        Arguments:
+          student - User.object
+          course_id - courseenrollment.course_id (string)
+
+        Removes certificate for a student, will change
+        the certificate status to 'deleting'.
+
+        Certificate must be in the 'error' or 'downloadable' state
+        otherwise it will return the current state
+
+        """
+
+        raise NotImplementedError
 
     def add_cert(self, student, course_id, course=None, forced_grade=None, template_file=None, title='None'):
         """
@@ -196,12 +239,7 @@ class XQueueCertInterface(object):
                     new_status = status.generating
                     cert.status = new_status
                     cert.save()
-                    #course_description = courses.get_course_overview_section(course)
-                    payload = {"credential": { "name": course_name, "description": "course_description", "achievement_id": contents['course_id'], "grade": contents['grade'], "recipient": {"name": contents['name'], "email": student.email}}}
-                    payload = json.dumps(payload)
-                    requests.post('https://staging.accredible.com/v1/credentials', payload, headers={'Authorization':'Token token="accredible_secret123"', 'Content-Type':'application/json'})
-
-
+                    self._send_to_xqueue(contents, key)
             else:
                 cert_status = status.notpassing
                 cert.status = cert_status
@@ -209,3 +247,19 @@ class XQueueCertInterface(object):
 
         return new_status
 
+    def _send_to_xqueue(self, contents, key):
+
+        if self.use_https:
+            proto = "https"
+        else:
+            proto = "http"
+
+        xheader = make_xheader(
+            '{0}://{1}/update_certificate?{2}'.format(
+                proto, settings.SITE_NAME, key), key, settings.CERT_QUEUE)
+
+        (error, msg) = self.xqueue_interface.send_to_queue(
+            header=xheader, body=json.dumps(contents))
+        if error:
+            logger.critical('Unable to add a request to the queue: {} {}'.format(error, msg))
+            raise Exception('Unable to send queue message')

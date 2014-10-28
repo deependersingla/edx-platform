@@ -155,7 +155,7 @@ class CertificateGeneration(object):
                 # the embargoed country restricted list
                 # otherwise, put a new certificate request
                 # on the queue
-
+                print grade_contents
                 if self.restricted.filter(user=student).exists():
                     new_status = status.restricted
                     cert.status = new_status
@@ -169,9 +169,17 @@ class CertificateGeneration(object):
                         'name': profile_name,
                         'grade': grade_contents
                     }
-                    payload = {"credential": { "name": course_name, "description": "course_description", "achievement_id": contents['course_id'], "grade": contents['grade'], "recipient": {"name": contents['name'], "email": student.email}}}
+                    if cert_mode == "verified":
+                         seal_image = "https://s3.amazonaws.com/accredible_api_style_preferences/signature_images/37/original/open-uri20141023-10175-q5szt4"
+                    elif cert_mode == "honor":
+                         seal_image = "https://s3.amazonaws.com/accredible_api_organizations/images/8/medium/data?1414086141"
+                    else:
+                         seal_image = None
+                    
+                    payload = {"credential": { "name": course_name, "description": "course_description", "achievement_id": contents['course_id'], "grade": grade['percent'] , "recipient": {"name": contents['name'], "email": student.email}, "style_preference": {"distinction_url": seal_image}}}
                     payload = json.dumps(payload)
                     r = requests.post('https://staging.accredible.com/v1/credentials', payload, headers={'Authorization':'Token token=' + self.api_key, 'Content-Type':'application/json'})
+                    
                     if r.status_code == 200:
                        json_response = r.json()
                        new_status = 'downloadable'  
@@ -192,5 +200,6 @@ class CertificateGeneration(object):
                 cert.save()
 
         return new_status
+
 
 

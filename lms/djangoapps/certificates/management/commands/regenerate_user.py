@@ -1,42 +1,25 @@
-"""
-Management command to find all students that need certificates for
-courses that have finished, and put their cert requests on the queue.
-"""
-from django.core.management.base import BaseCommand, CommandError
-from certificates.models import certificate_status_for_student
-from certificates.queue import XQueueCertInterface
-from django.contrib.auth.models import User
+"""Django management command to force certificate regeneration for one user"""
+
 from optparse import make_option
-from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand, CommandError
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from xmodule.course_module import CourseDescriptor
 from xmodule.modulestore.django import modulestore
-from certificates.models import CertificateStatuses
-import datetime
-from pytz import UTC
-
+from certificates.queue import XQueueCertInterface
 
 
 class Command(BaseCommand):
-
-    help = """
-    Find all students that need certificates for courses that have finished and
-    put their cert requests on the queue.
-
-    If --user is given, only grade and certify the requested username.
-
-    Use the --noop option to test without actually putting certificates on the
-    queue to be generated.
-    """
+    help = """Put a request on the queue to recreate the certificate for a particular user in a particular course."""
 
     option_list = BaseCommand.option_list + (
-       make_option('-n', '--noop',
+        make_option('-n', '--noop',
                     action='store_true',
                     dest='noop',
                     default=False,
-                    help="Don't add certificate requests to the queue"),
+                    help="Don't grade or add certificate requests to the queue"),
         make_option('--insecure',
                     action='store_true',
                     dest='insecure',
@@ -46,80 +29,58 @@ class Command(BaseCommand):
                     metavar='COURSE_ID',
                     dest='course',
                     default=False,
-                    help='Grade and generate certificates '
-                    'for a specific course'),
-        make_option('-f', '--force-gen',
-                    metavar='STATUS',
-                    dest='force',
+                    help='The course id (e.g., mit/6-002x/circuits-and-electronics) for which the student named in'
+                         '<username> should be graded'),
+        make_option('-u', '--user',
+                    metavar='USERNAME',
+                    dest='username',
                     default=False,
-                    help='Will generate new certificates for only those users '
-                    'whose entry in the certificate table matches STATUS. '
-                    'STATUS can be generating, unavailable, deleted, error '
-                    'or notpassing.'),
+                    help='The username or email address for whom grading and certification should be requested'),
+        make_option('-G', '--grade',
+                    metavar='GRADE',
+                    dest='grade_value',
+                    default=None,
+                    help='The grade string, such as "Distinction", which should be passed to the certificate agent'),
+        make_option('-T', '--template',
+                    metavar='TEMPLATE',
+                    dest='template_file',
+                    default=None,
+                    help='The template file used to render this certificate, like "QMSE01-distinction.pdf"'),
     )
-    
 
     def handle(self, *args, **options):
-
-        # Will only generate a certificate if the current
-        # status is in the unavailable state, can be set
-        # to something else with the force flag
-
-        if options['force']:
-            valid_statuses = getattr(CertificateStatuses, options['force'])
-        else:
-            valid_statuses = [CertificateStatuses.unavailable]
-
-        # Print update after this many students
-
-        STATUS_INTERVAL = 500
-
         if options['course']:
             # try to parse out the course from the serialized form
             try:
-                course = CourseKey.from_string(options['course'])
+                course_id = CourseKey.from_string(options['course'])
             except InvalidKeyError:
                 print("Course id {} could not be parsed as a CourseKey; falling back to SSCK.from_dep_str".format(options['course']))
-                course = SlashSeparatedCourseKey.from_deprecated_string(options['course'])
-            ended_courses = [course]
+                course_id = SlashSeparatedCourseKey.from_deprecated_string(options['course'])
         else:
             raise CommandError("You must specify a course")
-        
 
-        for course_key in ended_courses:
-            # prefetch all chapters/sequentials by saying depth=2
-            course = modulestore().get_course(course_key, depth=2)
+        user = options['username']
+        if not (course_id and user):
+            raise CommandError('both course id and student username are required')
 
-            print "Fetching enrolled students for {0}".format(course_key.to_deprecated_string())
-            enrolled_students = User.objects.filter(
-                courseenrollment__course_id=course_key)
+        student = None
+        print "Fetching enrollment for student {0} in {1}".format(user, course_id)
+        if '@' in user:
+            student = User.objects.get(email=user, courseenrollment__course_id=course_id)
+        else:
+            student = User.objects.get(username=user, courseenrollment__course_id=course_id)
 
+        print "Fetching course data for {0}".format(course_id)
+        course = modulestore().get_course(course_id, depth=2)
+
+        if not options['noop']:
+            # Add the certificate request to the queue
             xq = XQueueCertInterface()
-            total = enrolled_students.count()
-            count = 0
-            start = datetime.datetime.now(UTC)
-
-            for student in enrolled_students:
-                count += 1
-                if count % STATUS_INTERVAL == 0:
-                	 # Print a status update with an approximation of
-                    # how much time is left based on how long the last
-                    # interval took
-                    diff = datetime.datetime.now(UTC) - start
-                    timeleft = diff * (total - count) / STATUS_INTERVAL
-                    hours, remainder = divmod(timeleft.seconds, 3600)
-                    minutes, seconds = divmod(remainder, 60)
-                    print "{0}/{1} completed ~{2:02}:{3:02}m remaining".format(
-                        count, total, hours, minutes)
-                    start = datetime.datetime.now(UTC)
-
-                if certificate_status_for_student(
-                        student, course_key)['status'] in valid_statuses:
-                    if not options['noop']:
-                        # Add the certificate request to the queue
-                        ret = xq.add_cert(student, course_key, course=course)
-                        if ret == 'generating':
-                            print '{0} - {1}'.format(student, ret)
-
-         
-
+            if options['insecure']:
+                xq.use_https = False
+            ret = xq.regen_cert(student, course_id, course=course,
+                                forced_grade=options['grade_value'],
+                                template_file=options['template_file'])
+            print '{0} - {1}'.format(student, ret)
+        else:
+            print "noop option given, skipping work queueing..."
